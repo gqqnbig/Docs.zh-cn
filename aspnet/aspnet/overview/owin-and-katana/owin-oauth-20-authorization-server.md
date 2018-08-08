@@ -2,7 +2,7 @@
 uid: aspnet/overview/owin-and-katana/owin-oauth-20-authorization-server
 title: OWIN OAuth 2.0 授权服务器 |Microsoft Docs
 author: hongyes
-description: 本教程将指导您如何实现 OAuth 2.0 授权服务器使用 OWIN OAuth 中间件。 这是一个高级的教程，该唯一 outlin...
+description: 本教程将指导您如何使用 OWIN OAuth 中间件实现 OAuth 2.0 授权服务器。 这是一个高级的教程，该唯一 outlin...
 ms.author: aspnetcontent
 ms.date: 03/20/2014
 ms.assetid: 20acee16-c70c-41e9-b38f-92bfcf9a4c1c
@@ -19,10 +19,10 @@ ms.locfileid: "37828414"
 ====================
 通过[Hongye Sun](https://github.com/hongyes)， [Praburaj Thiagarajan](https://github.com/Praburaj)， [Rick Anderson](https://github.com/Rick-Anderson)
 
-> 本教程将指导您如何实现 OAuth 2.0 授权服务器使用 OWIN OAuth 中间件。 这是一种高级的教程，仅简要介绍创建 OWIN OAuth 2.0 授权服务器的步骤。 这不是分步教程。 [下载示例代码](https://code.msdn.microsoft.com/OWIN-OAuth-20-Authorization-ba2b8783/file/114932/1/AuthorizationServer.zip)。
+> 本教程将指导您如何使用 OWIN OAuth 中间件实现 OAuth 2.0 授权服务器。 这是一个高级教程，仅简要介绍创建 OWIN OAuth 2.0 授权服务器的步骤。 这不是分步教程。 [下载示例代码](https://code.msdn.microsoft.com/OWIN-OAuth-20-Authorization-ba2b8783/file/114932/1/AuthorizationServer.zip)。
 > 
 > > [!NOTE]
-> > 此边框不符合预期要用于创建安全的生产应用。 本教程旨在提供仅概述了如何实现 OAuth 2.0 授权服务器使用 OWIN OAuth 中间件。
+> > 此概述不应被用于创建需要符合安全标准的生产应用。 本教程仅旨在提供如何使用 OWIN OAuth 中间件实现 OAuth 2.0 授权服务器的概述。
 > 
 > 
 > ## <a name="software-versions"></a>软件版本
@@ -35,10 +35,10 @@ ms.locfileid: "37828414"
 > 
 > ## <a name="questions-and-comments"></a>问题和提出的意见
 > 
-> 如果你有与本教程不直接相关的问题，可以将其在发布[Katana 项目 GitHub 上](https://github.com/aspnet/AspNetKatana/)。 有关的问题和意见关于教程本身，请参阅在页面底部的注释部分。
+> 如果你有与本教程不直接相关的问题，可以将其在发布[Katana 项目 GitHub 上](https://github.com/aspnet/AspNetKatana/)。 有关教程本身的问题和意见，请参阅在页面底部的注释部分。
 
 
-[OAuth 2.0 framework](http://tools.ietf.org/html/rfc6749)允许第三方应用程序以获取对 HTTP 服务的有限访问权限。 而不是使用资源所有者的凭据来访问受保护的资源，客户端获取访问令牌 (这是一个字符串，表示特定的作用域、 生存期和其他访问属性)。 访问令牌被颁发给第三方客户端通过授权服务器资源所有者的批准。
+[OAuth 2.0 framework](http://tools.ietf.org/html/rfc6749)允许第三方应用程序获取对 HTTP 服务的有限访问权限。 客户端获取访问令牌 (这是一个字符串，表示特定的作用域、 生存期和其他访问属性)，而不是使用资源所有者的凭据，来访问受保护的资源。 在资源所有者批准后，授权服务器颁发访问令牌给第三方客户端。
 
 本教程介绍：
 
@@ -47,8 +47,8 @@ ms.locfileid: "37828414"
     - 隐式授权
     - 资源所有者密码凭据授予
     - 客户端凭据授予
-- 创建访问令牌通过受保护的资源服务器。
-- 正在创建 OAuth 2.0 客户端。
+- 创建受访问令牌保护的资源服务器。
+- 创建 OAuth 2.0 客户端。
 
 <a id="prerequisites"></a>
 ## <a name="prerequisites"></a>系统必备
@@ -59,43 +59,43 @@ ms.locfileid: "37828414"
 
 ## <a name="create-an-authorization-server"></a>创建授权服务器
 
-在本教程中，我们将大致草图了解如何使用[OWIN](https://msdn.microsoft.com/magazine/dn451439.aspx)和 ASP.NET MVC 创建服务器的授权。 我们希望很快提供有关已完成的示例中，可供下载本教程不包括每个步骤。 首先，创建名为空的 web 应用*AuthorizationServer*并安装以下包：
+在本教程中，我们将简述如何使用[OWIN](https://msdn.microsoft.com/magazine/dn451439.aspx)和 ASP.NET MVC 创建授权服务器。 我们希望尽快提供一个可下载的完整示例， 因为本教程不包括每个步骤。 首先，创建名为*AuthorizationServer*的空的 web 应用并安装以下包：
 
 - Microsoft.AspNet.Mvc
 - Microsoft.Owin.Host.SystemWeb
 - Microsoft.Owin.Security.OAuth
 - Microsoft.Owin.Security.Cookies
-- Microsoft.Owin.Security.Google （或任何其他社交登录名打包 Microsoft.Owin.Security.Facebook 等）
+- Microsoft.Owin.Security.Google （或任何其他社交网站登录包， 如 Microsoft.Owin.Security.Facebook ）
 
-添加[OWIN 启动类](owin-startup-class-detection.md)名为在项目根文件夹下*启动*。
+添加名为*Startup*的[OWIN 启动类](owin-startup-class-detection.md)。
 
 [!code-csharp[Main](owin-oauth-20-authorization-server/samples/sample1.cs?highlight=8)]
 
-创建*应用程序\_启动*文件夹。 选择*应用程序\_启动*文件夹，然后使用 Shift + Alt + A 若要添加的下载的版本*AuthorizationServer\App\_Start\Startup.Auth.cs*文件。
+创建*App\_Start*文件夹。 选择*App\_Start*文件夹，然后按 Shift + Alt + A 添加的下载的版本*AuthorizationServer\App\_Start\Startup.Auth.cs*文件。
 
 [!code-csharp[Main](owin-oauth-20-authorization-server/samples/sample2.cs)]
 
 上面的代码使应用程序/外部登录 cookie 和 Google 身份验证，授权服务器本身用于管理帐户。
 
-`UseOAuthAuthorizationServer`扩展方法是设置授权服务器。 安装程序选项包括：
+`UseOAuthAuthorizationServer`扩展方法设置授权服务器。 设置选项包括：
 
-- `AuthorizeEndpointPath`: 请求路径，其中客户端应用程序会将重定向用户代理以获取用户同意使用颁发的令牌或代码。 它必须以具有前导斜杠，例如，"`/Authorize`"。
-- `TokenEndpointPath`: 请求路径客户端应用程序直接进行通信以获取访问令牌。 它必须以具有前导斜杠，如"/token"。 如果客户端颁发[客户端\_机密](http://tools.ietf.org/html/rfc6749#appendix-A.2)，它必须提供给此终结点。
-- `ApplicationCanDisplayErrors`： 设置为`true`如果 web 应用程序想要在生成的客户端验证错误的自定义错误页`/Authorize`终结点。 这才必需的情况下，在浏览器不会重定向回客户端应用程序，例如，当`client_id`或`redirect_uri`不正确。 `/Authorize`终结点应该会看到"oauth。错误"、"oauth。ErrorDescription"和"oauth。ErrorUri"属性添加到 OWIN 环境。 
+- `AuthorizeEndpointPath`: 请求路径，客户端应用程序会将用户代理重定向到的路径，来获取用户同意，以便颁发令牌或代码。 它必须以前导斜杠开头，例如"`/Authorize`"。
+- `TokenEndpointPath`: 客户端应用程序直接进行通信此路径以获取访问令牌。 它必须以前导斜杠开头，如"/token"。 如果客户端有[客户端\_机密](http://tools.ietf.org/html/rfc6749#appendix-A.2)，它必须提供给此终结点。
+- `ApplicationCanDisplayErrors`： 如果设置为`true`， 当客户端在访问`/Authorize`终结点时产生验证错误， web 应用程序会显示一个自定义错误页。 仅当浏览器不会重定向回原来的客户端应用程序，如`client_id`或`redirect_uri`不正确时， 此选项才起作用。 `/Authorize`终结点应该会看到"oauth.Error"、"oauth.ErrorDescription"和"oauth.ErrorUri"属性添加到 OWIN 环境。 
 
     > [!NOTE]
-    > 如果不为 true，则授权服务器将返回默认错误页的错误详细信息。
-- `AllowInsecureHttp`: True 以允许授权和令牌请求到达 HTTP URI 地址，并允许传入`redirect_uri`授权请求参数，具有 HTTP URI 地址。 
+    > 如果不为 true，则授权服务器将返回带有错误详细信息的默认错误页。
+- `AllowInsecureHttp`: True 以允许授权和令牌请求到达 HTTP URI 地址，并允许传入的`redirect_uri`授权请求参数具有 HTTP URI 地址。 
 
     > [!WARNING]
-    > 安全性-这是只能在开发。
-- `Provider`： 处理由授权服务器中间件引发事件应用程序提供的对象。 应用程序可能完全实现接口，或它可能会造成的实例`OAuthAuthorizationServerProvider`并分配此服务器支持的 OAuth 流所需的委托。
-- `AuthorizationCodeProvider`： 生成一次性授权代码返回到客户端应用程序。 为 OAuth 服务器要保护的应用程序**必须**提供的一个实例`AuthorizationCodeProvider`由生成的令牌`OnCreate/OnCreateAsync`事件被视为有效只有一个调用`OnReceive/OnReceiveAsync`。
-- `RefreshTokenProvider`： 生成可用于生成新的访问令牌时所需的刷新令牌。 如果未提供授权服务器不会返回的刷新令牌`/Token`终结点。
+    > 安全性 - 这只是方便开发。
+- `Provider`： 应用程序提供的对象， 它负责处理由授权服务器中间件引发的事件。 应用程序可以完全实现接口，或只是创建`OAuthAuthorizationServerProvider`的实例，然后转发此服务器支持的 OAuth 工作流事件。
+- `AuthorizationCodeProvider`： 生成返回到客户端应用程序的一次性授权代码。 为了 OAuth 服务器的安全， 应用程序**必须**提供的一个`AuthorizationCodeProvider`的实例， 它的`OnCreate/OnCreateAsync`事件生成的令牌被传入`OnReceive/OnReceiveAsync`时只能有效一次。
+- `RefreshTokenProvider`： 生成刷新令牌， 该刷新令牌用于生成新的访问令牌。 如果未设置，授权服务器不会在`/Token`终结点返回刷新令牌。
 
 ## <a name="account-management"></a>帐户管理
 
-OAuth 并不关心其中或如何管理用户帐户信息。 它具有[ASP.NET 标识](../../../identity/index.md)对其负责。 在本教程中，我们将简化帐户管理代码，并只需确保该用户可以登录使用 OWIN cookie 中间件。 下面是简化的示例代码`AccountController`:
+OAuth 并不关心如何管理用户帐户信息。 它是[ASP.NET 标识](../../../identity/index.md)负责的。 在本教程中，我们将简化帐户管理代码，并只需确保该用户可以使用 OWIN cookie 中间件登录。 下面是简化的示例代码`AccountController`:
 
 [!code-csharp[Main](owin-oauth-20-authorization-server/samples/sample3.cs)]
 
