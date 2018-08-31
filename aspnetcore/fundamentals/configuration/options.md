@@ -17,9 +17,9 @@ ms.locfileid: "39655415"
 
 作者：[Luke Latham](https://github.com/guardrex)
 
-选项模式使用类来表示相关设置的组。 当配置设置由功能隔离到单独的类时，应用遵循两个重要软件工程原则：
+选项模式使用类来表示相关设置的组。 如果[配置设置](xref:fundamentals/configuration/index)由场景隔离到单独的类时，应用程序便遵循了两个重要的软件工程原则：
 
-* [接口分离原则 (ISP)](http://deviq.com/interface-segregation-principle/)：依赖于配置设置的功能（类）仅依赖于其使用的配置设置。
+* [接口隔离原则 (ISP)](http://deviq.com/interface-segregation-principle/)：依赖于配置设置的功能（类）仅依赖于其使用的配置设置。
 * [关注点分离](http://deviq.com/separation-of-concerns/)：应用的不同部件的设置不彼此依赖或相互耦合。
 
 [查看或下载示例代码](https://github.com/aspnet/Docs/tree/master/aspnetcore/fundamentals/configuration/options/sample)（[如何下载](xref:tutorials/index#how-to-download-a-sample)）跟随示例应用可更轻松地理解本文。
@@ -28,7 +28,7 @@ ms.locfileid: "39655415"
 
 基本选项配置已作为示例 &num;1 在[示例应用](https://github.com/aspnet/Docs/tree/master/aspnetcore/fundamentals/configuration/options/sample)中进行了演示。
 
-选项类必须为包含公共无参数构造函数的非抽象类。 以下类 `MyOptions` 具有两种属性：`Option1` 和 `Option2`。 设置默认值为可选，但以下示例中的类构造函数设置了 `Option1` 的默认值。 `Option2` 具有通过直接初始化属性设置的默认值 (Models/MyOptions.cs)：
+选项类必须为包含公共无参数构造函数的非抽象类。 以下类 `MyOptions` 具有两种属性：`Option1` 和 `Option2`。 设置的默认值是不必须的，但以下示例中的类构造函数设置了 `Option1` 的默认值。 `Option2` 被直接初始化，而具有默认值 (Models/MyOptions.cs)：
 
 [!code-csharp[](options/sample/Models/MyOptions.cs?name=snippet1)]
 
@@ -36,7 +36,7 @@ ms.locfileid: "39655415"
 
 [!code-csharp[](options/sample/Startup.cs?name=snippet_Example1)]
 
-以下页上的模型通过 [IOptions&lt;TOptions&gt;](/dotnet/api/Microsoft.Extensions.Options.IOptions-1) 使用[构造函数依赖关系注入](xref:mvc/controllers/dependency-injection)来访问设置 (Pages/Index.cshtml.cs)：
+以下页模型通过 [IOptions&lt;TOptions&gt;](/dotnet/api/Microsoft.Extensions.Options.IOptions-1) 使用[构造函数依赖关系注入](xref:mvc/controllers/dependency-injection)来访问设置 (Pages/Index.cshtml.cs)：
 
 [!code-csharp[](options/sample/Pages/Index.cshtml.cs?range=9)]
 
@@ -102,21 +102,21 @@ delegate_option1 = value1_configured_by_delgate, delegate_option2 = 500
 
 子选项配置已作为示例 &num;3 在[示例应用](https://github.com/aspnet/Docs/tree/master/aspnetcore/fundamentals/configuration/options/sample)中进行了演示。
 
-应用应创建适用于应用中特定功能组（类）的选项类。 需要配置值的部分应用应仅有权访问其使用的配置值。
+应用应创建适用于应用中特定功能组（类）的选项类。 应用的一部分如果需要访问配置值，则该部分应仅有权访问其需要的配置值。
 
 将选项绑定到配置时，选项类型中的每个属性都将绑定到窗体 `property[:sub-property:]` 的配置键。 例如，`MyOptions.Option1` 属性将绑定到从 appsettings.json 中的 `option1` 属性读取的键 `Option1`。
 
-在以下代码中，已向服务容器添加第三个 `IConfigureOptions<TOptions>` 服务。 它将 `MySubOptions` 绑定到 appsettings.json 文件的 `subsection` 部分：
+以下代码向服务容器添加第三个 `IConfigureOptions<TOptions>` 服务。 它将 `MySubOptions` 绑定到 appsettings.json 文件的 `subsection` 部分：
 
 [!code-csharp[](options/sample/Startup.cs?name=snippet_Example3)]
 
 `GetSection` 扩展方法需要 [Microsoft.Extensions.Options.ConfigurationExtensions](https://www.nuget.org/packages/Microsoft.Extensions.Options.ConfigurationExtensions/) NuGet 包。 如果应用使用 [Microsoft.AspNetCore.App metapackage 元包](xref:fundamentals/metapackage-app)（ASP.NET Core 2.1 或更高版本），将自动包含此包。
 
-示例的 appsettings.json 文件定义具有 `suboption1` 和 `suboption2` 的键的 `subsection` 成员：
+示例的 appsettings.json 文件定义 `subsection` 成员，它具有 `suboption1` 和 `suboption2` 两个键：
 
 [!code-json[](options/sample/appsettings.json?highlight=4-7)]
 
-`MySubOptions` 类将属性 `SubOption1` 和 `SubOption2` 定义为保留选项值 (Models/MySubOptions.cs)：
+`MySubOptions` 类定义属性 `SubOption1` 和 `SubOption2` ，用来保存选项值 (Models/MySubOptions.cs)：
 
 [!code-csharp[](options/sample/Models/MySubOptions.cs?name=snippet1)]
 
