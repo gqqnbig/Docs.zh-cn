@@ -34,7 +34,7 @@ ms.locfileid: "39396229"
 
 ## <a name="make-the-apps-content-localizable"></a>使应用内容可本地化
 
-ASP.NET Core 中引入并架构了 `IStringLocalizer` 和 `IStringLocalizer<T>`，以提高开发本地化应用的工作效率。 `IStringLocalizer` 使用 [ResourceManager](/dotnet/api/system.resources.resourcemanager) 和 [ResourceReader](/dotnet/api/system.resources.resourcereader)，在运行时提供区域性特定资源。 简单接口具有一个索引器和一个用于返回本地化字符串的 `IEnumerable`。 `IStringLocalizer` 不要求在资源文件中存储默认语言字符串。 你可以开发针对本地化的应用，且无需在开发初期创建资源资源文件。 下面的代码演示如何针对本地化包装字符串“About Title”。
+ASP.NET Core 中引入并架构了 `IStringLocalizer` 和 `IStringLocalizer<T>`，以提高开发本地化应用的工作效率。 `IStringLocalizer` 使用 [ResourceManager](/dotnet/api/system.resources.resourcemanager) 和 [ResourceReader](/dotnet/api/system.resources.resourcereader)，在运行时提供区域性特定资源。 这个简单的接口具有一个索引器和一个用于返回本地化字符串的 `IEnumerable`。 `IStringLocalizer` 不要求在资源文件中存储默认语言字符串。 你可以开发针对本地化的应用，且无需在开发初期创建资源资源文件。 下面的代码演示如何针对本地化包装字符串“About Title”。
 
 [!code-csharp[](localization/sample/Localization/Controllers/AboutController.cs)]
 
@@ -218,7 +218,7 @@ using Microsoft.Extensions.Localization;
 
 ### <a name="localization-middleware"></a>本地化中间件
 
-在本地化[中间件](xref:fundamentals/middleware/index)中设置有关请求的当前区域性。 在 `Configure` 方法中启用本地化中间件。 必须在中间件前面配置本地化中间件，它可能检查请求区域性（例如，`app.UseMvcWithDefaultRoute()`）。
+在本地化[中间件](xref:fundamentals/middleware/index)中设置有关请求的当前区域性。 在 `Configure` 方法中启用本地化中间件。 本地化中间件必须其他可能检查请求区域性的中间件（例如，`app.UseMvcWithDefaultRoute()`）之前配置。
 
 [!code-csharp[](localization/sample/Localization/Program.cs?name=snippet2)]
 
